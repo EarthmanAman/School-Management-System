@@ -130,6 +130,77 @@ class SchoolGrade(models.Model):
 	grade 	= models.ForeignKey(Grade, on_delete=models.PROTECT)
 	school 	= models.ForeignKey(School, on_delete=models.PROTECT)
 
+	def __str__(self):
+		return self.school.__str__() + " :- " + self.grade.__str__()
+
+
+class SchoolSubject(models.Model):
+
+	"""
+		Descriptions
+		-------------
+			* A model to for the school subjects
+
+		Variables
+		-----------
+			* No variables
+
+		Fields
+		--------
+			* school = a foreign key to School
+			* subject = a foreign key to subject
+
+		Methods
+		---------
+			* def __str__() = display
+	"""
+
+	# Variables
+
+	# Fields
+
+	school 	= models.ForeignKey(School, on_delete=models.PROTECT)
+	subject = models.ForeignKey(Subject, on_delete=models.PROTECT)
+
+	# Methods
+
+	def __str__(self):
+		return self.subject.__str__() + " :- " + self.school.__str__()
+
+
+
+
+class GradeSubject(models.Model):
+
+	"""
+		Descriptions
+		-------------
+			* A model which record the subject of a grade
+
+		Variables
+		-----------
+
+		Fields
+		--------
+			* school_grade = a foreign key to SchoolGrade
+			* school_subject = a foreign key to SchoolSubject
+			* subject_teacher = a foreign key to SchoolTeacher
+
+		Methods
+		---------
+			* def __str__() = display
+	"""
+
+	school_grade	= models.ForeignKey(SchoolGrade, on_delete=models.PROTECT)
+	school_subject 	= models.ForeignKey(SchoolSubject, on_delete=models.PROTECT)
+	subject_teacher	= models.ForeignKey(SchoolTeacher, on_delete=models.SET_NULL, null=True)
+
+	# Methods
+
+	def __str__(self):
+		return self.school_subject.__str__() + " : " + self.school_grade.__str__()
+
+
 
 class GradeClass(models.Model):
 
@@ -145,6 +216,7 @@ class GradeClass(models.Model):
 		Fields
 		--------
 			* school_grade = foreign key to SchoolGrade
+			* class_teacher = one to one relationship to teacher
 			* name = character (default= "default")
 
 		Methods
@@ -157,6 +229,7 @@ class GradeClass(models.Model):
 	# Fields
 
 	school_grade	= models.ForeignKey(SchoolGrade, on_delete=models.PROTECT)
+	class_teacher 	= models.OneToOneField(SchoolTeacher, on_delete=models.SET_NULL, null=True)
 
 	name 			= models.CharField(max_length=50, default="default")
 
