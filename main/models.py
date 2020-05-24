@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 class Grade(models.Model):
 
 	"""
-		Descriptios
+		Descriptions
 		-------------
 			* A model to store the basic description
 			* Can be linked with other database
