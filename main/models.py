@@ -28,10 +28,10 @@ class Grade(models.Model):
 	GRADE_LIST 	= (
 			("one", "GRADE ONE"),
 			("two", "GRADE TWO"),
-			("three", "GRADE TWO"),
-			("four", "GRADE TWO"),
-			("five", "GRADE TWO"),
-			("six", "GRADE TWO"),
+			("three", "GRADE Three"),
+			("four", "GRADE Four"),
+			("five", "GRADE Five"),
+			("six", "GRADE Six"),
 		)
 
 	name		= models.CharField(max_length=10, choices=GRADE_LIST)
@@ -185,8 +185,8 @@ class Teacher(models.Model):
 
 	# Fields
 
-	user 		= models.ForeignKey(User, on_delete = models.CASCADE)
-
+	user 		= models.ForeignKey(User, on_delete=models.CASCADE)
+	subjects 	= models.ManyToManyField(Subject)
 	id_no 		= models.IntegerField()
 	employee_id = models.IntegerField(blank=True, null=True)
 	phone_no 	= models.IntegerField()

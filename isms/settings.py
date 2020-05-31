@@ -38,6 +38,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    # Third party libraries
+    "rest_framework",
+
+    # Local
     "assessment",
     "institution",
     "main",

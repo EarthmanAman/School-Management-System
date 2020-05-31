@@ -130,6 +130,8 @@ class SchoolGrade(models.Model):
 	grade 	= models.ForeignKey(Grade, on_delete=models.PROTECT)
 	school 	= models.ForeignKey(School, on_delete=models.PROTECT)
 
+	# Methods
+	
 	def __str__(self):
 		return self.school.__str__() + " :- " + self.grade.__str__()
 
@@ -272,3 +274,57 @@ class ClassPupil(models.Model):
 	def __str__(self):
 
 		return self.pupil.first_name + " - " + self.grade_class.__str__()
+
+
+class TeacherRole(models.Model):
+
+	"""
+		Descriptions
+		-------------
+			* A model for the role of teachers
+			* Some roles will be created automatic (headteacher, deputy_teacher, senior_teacher)
+
+		Variables
+		-----------
+			* No variables
+
+		Fields
+		--------
+			* teacher = many to many relationship to SchoolTeacher
+			* name = character
+
+		Methods
+		---------
+			* def __str__() = display
+	"""
+
+	teacher = models.ManyToManyField(SchoolTeacher)
+	name 	= models.CharField(max_length=50)
+
+
+class PupilRole(models.Model):
+
+	"""
+	
+		Descriptions
+		-------------
+			* A model for the role of pupils
+			* Some roles will be created automatic (pupil_chairperson, asst_chairperson)
+
+		Variables
+		-----------
+			* No variables
+
+		Fields
+		--------
+			* pupil = many to many relationship to SchoolPupil
+			* name = character
+
+		Methods
+		---------
+			* def __str__() = display
+
+	"""
+
+	pupil = models.ManyToManyField(ClassPupil)
+	name 	= models.CharField(max_length=50)
