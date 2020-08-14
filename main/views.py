@@ -13,10 +13,13 @@ from rest_framework.generics import (
 	)
 
 from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveModelMixin
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.validators import ValidationError
 
 from institution.models import School
+from institution.permissions import IsSchoolTeacher, IsSchoolStaff
+
 from . models import Grade, Pupil, Subject, Teacher
 
 from . serializers import (
@@ -156,6 +159,7 @@ class PupilList(ListCreateAPIView):
 
 	serializer_class = PupilListSer
 	queryset = Pupil.objects.all()
+	permission_classes = [IsAuthenticated, IsSchoolTeacher]
 
 	def create(self, request, *args, **kwargs):
 		try:
@@ -163,7 +167,7 @@ class PupilList(ListCreateAPIView):
 		except IntegrityError:
 			return Response({"error": "The nemis number has already been used"})
 
-class PupilDetail(RetrieveUpdateDestroyAPIView):
+class PupilDetail(RetrieveUpdateAPIView):
 	"""
 		Description
 		-------------
@@ -172,6 +176,8 @@ class PupilDetail(RetrieveUpdateDestroyAPIView):
 	"""
 	serializer_class = PupilDetailSer
 	queryset = Pupil.objects.all()
+
+	permission_classes = [IsAuthenticated, IsSchoolTeacher]
 
 
 # Subject
@@ -248,4 +254,6 @@ class TeacherDetail(RetrieveUpdateDestroyAPIView):
 	"""
 	serializer_class = TeacherDetailSer
 	queryset = Teacher.objects.all()
+
+	permission_classes = [IsAuthenticated, IsSchoolStaff]
 

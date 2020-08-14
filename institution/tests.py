@@ -19,35 +19,18 @@ from . models import (
 
 
 class Users(APITestCase):
-	def __init__(self, is_superuser=False, is_staff=False, registered=True, is_head=False):
-		super().__init__()
-		self.is_superuser = is_superuser
-		self.is_staff = is_staff
-		self.registered = registered
-		self.is_head = is_head
 
-		self.main()
-
-	def main(self):
-		self.user = self.create_user()
-		self.subject = self.create_subject()
-		self.teacher = self.create_teacher()
-		self.school = self.create_school()
-
-		if self.registered:
-			self.school_teacher = self.create_school_teacher()
-
-	def create_user(self):
-		user = User(
-				username="testcase234@gmail.com",
-				email= "testcase234@gmail.com",
+	def create_user(self, is_superuser=False, is_staff=False):
+		user = User.objects.create(
+				username="testcase@gmail.com",
+				email= "testcase@gmail.com",
 				first_name= "test",
 				last_name= "test",
 				password= "password",
-				is_superuser = self.is_superuser,
-				is_staff= self.is_staff,
+				is_staff= is_staff,
+				is_superuser=is_superuser,
 			)
-
+		
 		return user
 
 	def create_subject(self):
@@ -58,16 +41,16 @@ class Users(APITestCase):
 
 		return subject
 
-	def create_teacher(self):
+	def create_teacher(self, user, subject=[]):
 		teacher = Teacher.objects.create(
-				user= self.user.id,
+				user= user,
 				id_no= 1234567,
 				employee_id=222222,
 				phone_no= 345627,
 				dob="1984-08-08",
 			)
 
-		teacher.subjects = set([self.subject])
+		teacher.subjects.set(subject)
 		teacher.save()
 		return teacher
 
@@ -82,21 +65,12 @@ class Users(APITestCase):
 
 		return school
 
-	def create_school_teacher(self):
-		school_teacher = SchoolTeacher(
-				school= self.school,
-				teacher= self.teacher,
+	def create_school_teacher(self, school, teacher, position="s"):
+		school_teacher = SchoolTeacher.objects.create(
+				school= school,
+				teacher= teacher,
 				employment_status= "p",
+				position=position,
 			)
 
-		if self.is_head:
-			school_teacher["position"] = "ht",
-		else:
-			school_teacher["position"] = "s"
-
-		school_teacher = school_teacher.save()
-
 		return school_teacher
-
-	def get_user(self):
-		return self.user

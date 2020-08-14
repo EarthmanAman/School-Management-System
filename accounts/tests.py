@@ -11,11 +11,6 @@ from institution.tests import Users
 
 from . serializers import UserSer
 
-user = Users()
-h_user = Users(is_head=True)
-s_h_user = Users(is_head=True, is_staff=True)
-s_s_h_user = Users(is_head=True, is_staff=True, is_superuser=True)
-
 class RegistrationTestCase(APITestCase):
 	data = {
 			"email":"test@gmail.com", 
@@ -32,20 +27,20 @@ class RegistrationTestCase(APITestCase):
 
 
 
-class UserListTestCase(APITestCase):
+class UserListTestCase(Users):
 
+	
 	list_url = reverse("accounts:users")
 	detail = reverse("accounts:user_detail", kwargs={"pk":1})
-	user = Users()
-	h_user = Users(is_head=True)
-	s_h_user = Users(is_head=True, is_staff=True)
-	s_s_h_user = Users(is_head=True, is_staff=True, is_superuser=True)
 
 	def setUp(self):
-		self.r_user = user.get_user()
+		self.r_user = self.create_user()
 
-		self.token = Token.objects.get(user=self.r_user)
+		self.token = self.generate_token(self.r_user)
 		self.api_authentication()	
+
+	def generate_token(self, user):
+		return Token.objects.get(user=user)
 
 	def api_authentication(self):
 		self.client.credentials(HTTP_AUTHORIZATION="Token " + self.token.key)
@@ -60,6 +55,28 @@ class UserListTestCase(APITestCase):
 		response = self.client.get(self.list_url)
 		self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
+
+	
+
+class UserDetailTestCase(Users):
+
+	detail = reverse("accounts:user_detail", kwargs={"pk":1})
+
+	def setUp(self):
+		self.r_user = self.create_user()
+		self.subject = self.create_subject()
+		self.school = self.create_school()
+		self.teacher = self.create_teacher(user=self.r_user)
+		self.school_teacher = self.create_school_teacher(school=self.school, teacher=self.teacher)
+		self.token = self.generate_token(self.r_user)
+		self.api_authentication()	
+
+
+	def generate_token(self, user):
+		return Token.objects.get(user=user)
+
+	def api_authentication(self):
+		self.client.credentials(HTTP_AUTHORIZATION="Token " + self.token.key)
 
 	def test_user_detail_retrieve(self):
 		response = self.client.get(self.detail)

@@ -199,7 +199,7 @@ class Teacher(models.Model):
 	# Fields
 
 	user 		= models.OneToOneField(User, on_delete=models.CASCADE)
-	subjects 	= models.ManyToManyField(Subject, blank=True, null=True)
+	subjects 	= models.ManyToManyField(Subject, blank=True)
 	id_no 		= models.IntegerField(validators=[validate_id_no])
 	employee_id = models.IntegerField(blank=True, null=True)
 	phone_no 	= models.IntegerField()
