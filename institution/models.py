@@ -1,6 +1,8 @@
 from django.db import models
 from main.models import Grade, Pupil, Subject, Teacher
 
+from rest_framework.reverse import reverse as api_reverse
+
 
 class School(models.Model):
 
@@ -45,6 +47,10 @@ class School(models.Model):
 
 
 	# Methods
+
+	def get_indv_url(self, request=None):
+		return api_reverse("institution:schools_detail", kwargs={"pk":self.id},  request=request)
+
 
 	def __str__(self):
 		return self.name
@@ -98,6 +104,12 @@ class SchoolTeacher(models.Model):
 
 	# Methods
 
+	def get_indv_url(self, request=None):
+		return api_reverse("institution:school_teachers_detail", kwargs={"pk":self.id},  request=request)
+
+
+	def __str__(self):
+		return self.teacher.__str__()
 
 
 class SchoolGrade(models.Model):
@@ -132,6 +144,9 @@ class SchoolGrade(models.Model):
 
 	# Methods
 	
+	def get_indv_url(self, request=None):
+		return api_reverse("institution:school_grades_detail", kwargs={"pk":self.id},  request=request)
+
 	def __str__(self):
 		return self.school.__str__() + " :- " + self.grade.__str__()
 
@@ -146,7 +161,7 @@ class SchoolSubject(models.Model):
 		Variables
 		-----------
 			* No variables
-
+	
 		Fields
 		--------
 			* school = a foreign key to School
@@ -165,6 +180,9 @@ class SchoolSubject(models.Model):
 	subject = models.ForeignKey(Subject, on_delete=models.PROTECT)
 
 	# Methods
+
+	def get_indv_url(self, request=None):
+		return api_reverse("institution:school_subjects_detail", kwargs={"pk":self.id},  request=request)
 
 	def __str__(self):
 		return self.subject.__str__() + " :- " + self.school.__str__()
@@ -199,6 +217,9 @@ class GradeSubject(models.Model):
 
 	# Methods
 
+	def get_indv_url(self, request=None):
+		return api_reverse("institution:grade_subjects_detail", kwargs={"pk":self.id},  request=request)
+
 	def __str__(self):
 		return self.school_subject.__str__() + " : " + self.school_grade.__str__()
 
@@ -231,11 +252,14 @@ class GradeClass(models.Model):
 	# Fields
 
 	school_grade	= models.ForeignKey(SchoolGrade, on_delete=models.PROTECT)
-	class_teacher 	= models.OneToOneField(SchoolTeacher, on_delete=models.SET_NULL, null=True)
+	class_teacher 	= models.ForeignKey(SchoolTeacher, on_delete=models.SET_NULL, null=True)
 
 	name 			= models.CharField(max_length=50, default="default")
 
 	# Methods
+
+	def get_indv_url(self, request=None):
+		return api_reverse("institution:grade_classess_detail", kwargs={"pk":self.id},  request=request)
 
 	def __str__(self):
 		return self.name + " - " + self.school_grade.grade.name + " - " + self.school_grade.school.name
@@ -270,6 +294,10 @@ class ClassPupil(models.Model):
 	pupil 		= models.OneToOneField(Pupil, on_delete=models.PROTECT)
 
 	# Methods
+
+	def get_indv_url(self, request=None):
+		return api_reverse("institution:class_pupils_detail", kwargs={"pk":self.id},  request=request)
+
 
 	def __str__(self):
 

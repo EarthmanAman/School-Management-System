@@ -1,7 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 
+from rest_framework.reverse import reverse as api_reverse
 
+from . validators import validate_id_no
 
 class Grade(models.Model):
 
@@ -35,6 +38,13 @@ class Grade(models.Model):
 		)
 
 	name		= models.CharField(max_length=10, choices=GRADE_LIST)
+
+
+	def get_list(self):
+		return Grade.objects.all()
+
+	def get_list_url(self, request=None):
+		return api_reverse("main:grades", request=request)
 
 	def __str__(self):
 		return self.name
@@ -76,17 +86,17 @@ class Pupil(models.Model):
 
 	# Variables
 	_GENDERS = (
-			("m", "Male"),
-			("f", "Female"),
-			("o", "Others"),
+			("m", "male"),
+			("f", "female"),
+			("o", "others"),
 		)
 
 	_RELIGIONS = (
-			("atheists", "Atheists"), ("baha'i", "Baha'i"), ("buddhism", "Buddhism"),
-			("christianity", "Christianity"), ("hinduism", "Hinduism"), ("islam", "Islam"),
-			("jainism", "Jainism"), ("judaism", "Judaism"), ("shintoism", "Shintoism"),
-			("sikhism", "Sikhism"), ("syncretic", "Syncretic"), ("taoism", "Taoism"),
-			("tradition", "Tradition"), ("zoroastrianism", "Zoroastrianism"),	
+			("atheists", "atheists"), ("baha'i", "Baha'i"), ("buddhism", "buddhism"),
+			("christianity", "christianity"), ("hinduism", "hinduism"), ("islam", "islam"),
+			("jainism", "jainism"), ("judaism", "judaism"), ("shintoism", "shintoism"),
+			("sikhism", "sikhism"), ("syncretic", "syncretic"), ("taoism", "taoism"),
+			("tradition", "tradition"), ("zoroastrianism", "zoroastrianism"),	
 
 		)
 
@@ -106,6 +116,9 @@ class Pupil(models.Model):
 
 
 	# Methods 
+
+	def get_school(self):
+		return self.classpupil.grade_class.school_grade.school
 
 	def __str__(self):
 		return str(self.nemis_no) + " - " + self.first_name + " - " + self.last_name
@@ -185,9 +198,9 @@ class Teacher(models.Model):
 
 	# Fields
 
-	user 		= models.ForeignKey(User, on_delete=models.CASCADE)
-	subjects 	= models.ManyToManyField(Subject)
-	id_no 		= models.IntegerField()
+	user 		= models.OneToOneField(User, on_delete=models.CASCADE)
+	subjects 	= models.ManyToManyField(Subject, blank=True, null=True)
+	id_no 		= models.IntegerField(validators=[validate_id_no])
 	employee_id = models.IntegerField(blank=True, null=True)
 	phone_no 	= models.IntegerField()
 
@@ -195,6 +208,10 @@ class Teacher(models.Model):
 
 
 	# Methods
+
+	def validate_id_no(value):
+		if type(value) != int:
+			raise ValidationError("ID number must be a number")
 
 	def __str__(self):
 		return self.user.first_name + " - " + self.user.last_name

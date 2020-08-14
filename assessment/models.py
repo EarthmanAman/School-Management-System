@@ -65,7 +65,7 @@ class Assess(models.Model):
 
 	# Fields
 
-	assess_type		= models.ForeignKey(AssessType, on_delete=models.SET_NULL, null=True)
+	assess_type		= models.ForeignKey(AssessType, related_name="assessments", on_delete=models.SET_NULL, null=True)
 	grade_subject 	= models.ForeignKey(GradeSubject, on_delete=models.SET_NULL, null=True)
 
 	date 			= models.DateField(blank=True, null=True)
