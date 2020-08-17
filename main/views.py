@@ -21,7 +21,7 @@ from institution.models import School
 from institution.permissions import IsSchoolTeacher, IsSchoolStaff
 
 from . models import Grade, Pupil, Subject, Teacher
-
+from . permissions import IsSchoolStaffTeacher
 from . serializers import (
 	GradeListSer, 
 	GradeDetailSer,
@@ -255,5 +255,5 @@ class TeacherDetail(RetrieveUpdateDestroyAPIView):
 	serializer_class = TeacherDetailSer
 	queryset = Teacher.objects.all()
 
-	permission_classes = [IsAuthenticated, IsSchoolStaff]
+	permission_classes = [IsAuthenticated, IsSchoolStaffTeacher]
 

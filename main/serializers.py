@@ -261,16 +261,19 @@ class PupilDetailSer(ModelSerializer):
 		]
 
 	def get_school(self, obj):
-		school_in = obj.get_school()
+		try:
+			school_in = obj.get_school()
 
-		context = {
-			"name":school_in.name,
-			"school_type":school_in.school_type,
-			"county":school_in.county,
-			"constitutuency":school_in.constitutuency,
-			"ward":school_in.ward,
-		}
-		return context
+			context = {
+				"name":school_in.name,
+				"school_type":school_in.school_type,
+				"county":school_in.county,
+				"constitutuency":school_in.constitutuency,
+				"ward":school_in.ward,
+			}
+			return context
+		except:
+			return None
 
 
 class SubjectListSer(ModelSerializer):

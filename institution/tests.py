@@ -20,6 +20,9 @@ from . models import (
 
 class Users(APITestCase):
 
+	def create_un_user(self):
+		return User.objects.create(username="un user", password="password")
+
 	def create_user(self, is_superuser=False, is_staff=False):
 		user = User.objects.create(
 				username="testcase@gmail.com",
@@ -74,3 +77,16 @@ class Users(APITestCase):
 			)
 
 		return school_teacher
+
+	def create_unschool_teacher(self):
+		user = User.objects.create(username="unschoolteacher@gmail.com", password="password")
+		teacher = Teacher.objects.create(
+					user=user,
+					id_no= 1245373,
+					employee_id= 2234222,
+					phone_no= 3462709,
+					dob= "1984-08-08",
+					)
+		return teacher
+
+
