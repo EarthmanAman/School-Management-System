@@ -34,15 +34,12 @@ class GradeListSer(ModelSerializer):
 			* No methods
 	"""
 
-	more = HyperlinkedIdentityField(
-			view_name="main:grades_detail"
-		)
+	
 	class Meta:
 		model = Grade
 		fields = [
 			"id",
 			"name",
-			"more",
 		]
 
 
@@ -196,10 +193,6 @@ class PupilListSer(ModelSerializer):
 			"blank": "The field cannot be empty",
 		})
 
-	more = HyperlinkedIdentityField(
-			view_name="main:pupils_detail"
-		)
-
 	class Meta:
 		model = Pupil
 		fields = [
@@ -212,7 +205,7 @@ class PupilListSer(ModelSerializer):
 			"gender",
 			"religion",
 
-			"more",
+			
 		]
 
 
@@ -297,16 +290,14 @@ class SubjectListSer(ModelSerializer):
 		Methods
 		---------
 	"""
-	more = HyperlinkedIdentityField(
-			view_name="main:subjects_detail"
-		)
+
 	class Meta:
 		model = Subject
 		fields = [
 			"id",
 			"name",
 			"subject_type",
-			"more",
+			
 		]
 
 
@@ -458,9 +449,7 @@ class TeacherListSer(ModelSerializer):
 	"""
 
 	# Variables 
-	more = HyperlinkedIdentityField(
-			view_name="main:teachers_detail"
-		)
+	
 	subjects = SerializerMethodField()
 	user = SerializerMethodField()
 
@@ -476,7 +465,7 @@ class TeacherListSer(ModelSerializer):
 			"employee_id",
 			"phone_no",
 			"dob",
-			"more"
+			
 		]
 
 

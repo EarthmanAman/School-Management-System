@@ -15,10 +15,10 @@ from . models import Grade, Pupil, Subject, Teacher
 
 """
 
-
+	
 class PupilClass(APITestCase):
 
-	def create_pupil(self, is_superuser=False, is_staff=False):
+	def create_pupil(self):
 		pupil = Pupil.objects.create(
 				nemis_no=782829,
 				first_name="test pupil",
@@ -40,22 +40,6 @@ class MainListTestCase(Users):
 	pupils = reverse("main:pupils")
 	teachers = reverse("main:teachers")
 	teachers_create = reverse("main:teachers_create")
-
-	def setUp(self):
-		self.r_user = self.create_user()
-		self.subject = self.create_subject()
-		self.school = self.create_school()
-		self.teacher = self.create_teacher(user=self.r_user)
-		self.school_teacher = self.create_school_teacher(school=self.school, teacher=self.teacher)
-		self.token = self.generate_token(self.r_user)
-		self.api_authentication()	
-
-
-	def generate_token(self, user):
-		return Token.objects.get(user=user)
-
-	def api_authentication(self):
-		self.client.credentials(HTTP_AUTHORIZATION="Token " + self.token.key)
 
 	def test_users_authenticated_grades(self):
 
@@ -111,21 +95,6 @@ class MainCreateTestCase(Users):
 	teachers = reverse("main:teachers")
 	teachers_create = reverse("main:teachers_create")
 
-	def setUp(self):
-		self.r_user = self.create_user()
-		self.subject = self.create_subject()
-		self.school = self.create_school()
-		self.teacher = self.create_teacher(user=self.r_user)
-		self.school_teacher = self.create_school_teacher(school=self.school, teacher=self.teacher)
-		self.token = self.generate_token(self.r_user)
-		self.api_authentication()	
-
-
-	def generate_token(self, user):
-		return Token.objects.get(user=user)
-
-	def api_authentication(self):
-		self.client.credentials(HTTP_AUTHORIZATION="Token " + self.token.key)
 
 	def test_users_authenticated_teacher_create(self):
 		user = User.objects.create(username="test user", password="password")
@@ -226,27 +195,12 @@ class MainCreateTestCase(Users):
 	
 class MainPupilDetailTestCase(Users, PupilClass):
 
-	detail = reverse("main:pupils_detail", kwargs={"pk":1})
+	detail = reverse("main:pupils_detail", kwargs={"pk":2})
 
-	def setUp(self):
-		self.r_user = self.create_user()
-		self.subject = self.create_subject()
-		self.school = self.create_school()
-		self.teacher = self.create_teacher(user=self.r_user)
-		self.school_teacher = self.create_school_teacher(school=self.school, teacher=self.teacher)
-		self.token = self.generate_token(self.r_user)
-		self.api_authentication()	
-
-		self.pupil = self.create_pupil()
-
-
-	def generate_token(self, user):
-		return Token.objects.get(user=user)
-
-	def api_authentication(self):
-		self.client.credentials(HTTP_AUTHORIZATION="Token " + self.token.key)
-
+	
+	
 	def test_pupil_detail_retrieve(self):
+		self.pupil2 = self.create_pupil()
 		response = self.client.get(self.detail)
 		self.assertEqual(response.status_code, status.HTTP_200_OK)
 		self.assertEqual(response.data["first_name"], "test pupil")
@@ -277,6 +231,7 @@ class MainPupilDetailTestCase(Users, PupilClass):
 
 
 	def test_pupil_update(self):
+		self.pupil2 = self.create_pupil()
 		response = self.client.put(
 			self.detail, 
 			{
@@ -351,26 +306,11 @@ class MainPupilDetailTestCase(Users, PupilClass):
 
 
 
-class MainTeacherDetailTestCase(Users, PupilClass):
+class MainTeacherDetailTestCase(Users):
 
 	detail = reverse("main:teachers_detail", kwargs={"pk":1})
 
-	def setUp(self):
-		self.r_user = self.create_user()
-		self.subject = self.create_subject()
-		self.school = self.create_school()
-		self.teacher = self.create_teacher(user=self.r_user)
-		self.school_teacher = self.create_school_teacher(school=self.school, teacher=self.teacher)
-		self.token = self.generate_token(self.r_user)
-		self.api_authentication()	
-
-
-	def generate_token(self, user):
-		return Token.objects.get(user=user)
-
-	def api_authentication(self):
-		self.client.credentials(HTTP_AUTHORIZATION="Token " + self.token.key)
-
+	
 	def test_detail_retrieve(self):
 		response = self.client.get(self.detail)
 		self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -442,6 +382,5 @@ class MainTeacherDetailTestCase(Users, PupilClass):
 			})
 
 		self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-
+		
 		self.assertEqual(json.loads(response.content)["id_no"], 9999)

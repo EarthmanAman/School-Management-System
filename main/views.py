@@ -146,6 +146,10 @@ class GradeDetail(RetrieveAPIView):
 	serializer_class = GradeDetailSer
 	queryset = Grade.objects.all()
 
+	def get_serializer_context(self, *args, **kwargs):
+		return {"request":self.request}
+
+
 
 # Pupil
 

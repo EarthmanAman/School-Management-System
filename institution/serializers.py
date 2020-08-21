@@ -3,6 +3,7 @@ from rest_framework.serializers import (
 	ModelSerializer, 
 	SerializerMethodField,
 	ListField,
+	ValidationError,
 	)
 
 from main.serializers import (
@@ -616,6 +617,39 @@ class ClassPupilCreateSer(ModelSerializer):
 			"grade_class",
 			"pupil",
 		]
+
+	def create(self, validated_data):
+		grade_class = validated_data['grade_class']
+		request = self.context.get("request")
+
+		try:
+
+			school_teachers = SchoolTeacher.objects.filter(teacher=request.user.teacher)
+			heads = school_teachers.filter(position="ht")
+
+			if grade_class.class_teacher in school_teachers:
+				return validated_data
+
+			if heads.exists():
+				for head in heads:
+					if head.school == grade_class.class_teacher.school:
+						return validated_data
+
+			if request.user.is_superuser:
+
+				return validated_data
+
+
+			raise ValidationError("You do not have permission to do this action")
+		except:
+			
+			if request.user.is_superuser:
+				
+				return validated_data
+
+			raise ValidationError("You do not have permission to do this action")
+	
+
 
 
 class ClassPupilListSer(ModelSerializer):

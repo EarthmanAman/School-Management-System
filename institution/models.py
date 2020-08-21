@@ -51,6 +51,10 @@ class School(models.Model):
 	def get_indv_url(self, request=None):
 		return api_reverse("institution:schools_detail", kwargs={"pk":self.id},  request=request)
 
+	def get_head(self):
+		teachers = self.schoolteacher_set.all()
+		
+		return [teacher for teacher in teachers if teacher["position"] == "ht"]
 
 	def __str__(self):
 		return self.name
@@ -147,6 +151,13 @@ class SchoolGrade(models.Model):
 	def get_indv_url(self, request=None):
 		return api_reverse("institution:school_grades_detail", kwargs={"pk":self.id},  request=request)
 
+	def class_teachers(self):
+		grade_classes = self.gradeclass_set.all()
+		teachers = []
+		for grade_class in grade_classes:
+			teachers.append(grade_class.class_teacher)
+		return teachers
+		
 	def __str__(self):
 		return self.school.__str__() + " :- " + self.grade.__str__()
 

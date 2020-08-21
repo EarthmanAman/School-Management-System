@@ -4,11 +4,14 @@ from rest_framework.serializers import (
 	SerializerMethodField,
 	StringRelatedField,
 	ListField,
+
+	ValidationError,
 	)
 
 from main.serializers import PupilListSer
 from institution.serializers import GradeSubjectListSer
 
+from institution.models import SchoolTeacher
 from . models import (
 	AssessType,
 	Assess,
@@ -50,6 +53,33 @@ class AssessCreateSer(ModelSerializer):
 			"grade_subject",
 			"date",
 		]
+
+	def create(self, validated_data):
+		grade_subject = validated_data['grade_subject']
+		request = self.context.get("request")
+
+		try:
+			school_teachers = SchoolTeacher.objects.filter(teacher=request.user.teacher)
+			heads = school_teachers.filter(position="ht")
+
+			for school_teacher in school_teachers:
+				if school_teacher == grade_subject.subject_teacher:
+					return validated_data
+				elif school_teacher in grade_subject.school_grade.class_teachers():
+					return validated_data
+				elif heads.exists():
+					for head in heads:
+						if head.school == grade_subject.school_grade.school:
+							return validated_data
+			if request.user.is_superuser:
+				return validated_data
+
+			raise ValidationError("You do not have permission to do this action")
+		except:
+			if request.user.is_superuser:
+				return validated_data
+
+			raise ValidationError("You do not have permission to do this action")
 
 
 class AssessListSer(ModelSerializer):
@@ -177,6 +207,38 @@ class AssessTypeCreateSer(ModelSerializer):
 			"date",
 		]
 
+	def create(self, validated_data):
+		school_grade = validated_data['school_grade']
+		request = self.context.get("request")
+
+		try:
+
+			school_teachers = SchoolTeacher.objects.filter(teacher=request.user.teacher)
+
+			heads = school_teachers.filter(position="ht")
+			
+			for school_teacher in school_teachers:
+				if school_teacher in school_grade.class_teachers():
+					return validated_data
+
+			if heads.exists():
+				for head in heads:
+					if head.school == school_grade.school:
+						return validated_data
+
+			if request.user.is_superuser:
+
+				return validated_data
+
+
+			raise ValidationError("You do not have permission to do this action")
+		except:
+			
+			if request.user.is_superuser:
+				
+				return validated_data
+
+			raise ValidationError("You do not have permission to do this action")
 
 class AssessTypeListSer(ModelSerializer):
 	"""
@@ -303,6 +365,34 @@ class ResultCreateSer(ModelSerializer):
 			"pupil",
 			"marks",
 		]
+
+	def create(self, validated_data):
+		assess = validated_data['assess']
+		grade_subject = assess.grade_subject
+		request = self.context.get("request")
+
+		try:
+			school_teachers = SchoolTeacher.objects.filter(teacher=request.user.teacher)
+			heads = school_teachers.filter(position="ht")
+
+			for school_teacher in school_teachers:
+				if school_teacher == grade_subject.subject_teacher:
+					return validated_data
+				elif school_teacher in grade_subject.school_grade.class_teachers():
+					return validated_data
+				elif heads.exists():
+					for head in heads:
+						if head.school == grade_subject.school_grade.school:
+							return validated_data
+			if request.user.is_superuser:
+				return validated_data
+
+			raise ValidationError("You do not have permission to do this action")
+		except:
+			if request.user.is_superuser:
+				return validated_data
+
+			raise ValidationError("You do not have permission to do this action")
 
 
 

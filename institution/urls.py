@@ -42,27 +42,27 @@ urlpatterns = [
 
     # School Teacher
 
-    path('school_teachers/create.json', SchoolTeacherCreate.as_view(), name="school_teachers"),
+    path('school_teachers/create.json', SchoolTeacherCreate.as_view(), name="school_teachers_create"),
     path('school_teachers.json', SchoolTeacherList.as_view(), name="school_teachers"),
     path('school_teachers/<int:pk>.json', SchoolTeacherDetail.as_view(), name="school_teachers_detail"),
 
 
     # School Subject
 
-    path('school_subjects/create.json', SchoolSubjectCreate.as_view(), name="school_subjects"),
+    path('school_subjects/create.json', SchoolSubjectCreate.as_view(), name="school_subjects_create"),
     path('school_subjects.json', SchoolSubjectList.as_view(), name="school_subjects"),
     path('school_subjects/<int:pk>.json', SchoolSubjectDetail.as_view(), name="school_subjects_detail"),
 
 
     # Grade Subject
 
-    path('grade_subjects/create.json', GradeSubjectCreate.as_view(), name="grade_subjects"),
+    path('grade_subjects/create.json', GradeSubjectCreate.as_view(), name="grade_subjects_create"),
     path('grade_subjects.json', GradeSubjectList.as_view(), name="grade_subjects"),
     path('grade_subjects/<int:pk>.json', GradeSubjectDetail.as_view(), name="grade_subjects_detail"),
 
     # Grade Class
 
-    path('grade_classes/create.json', GradeClassCreate.as_view(), name="grade_classes"),
+    path('grade_classes/create.json', GradeClassCreate.as_view(), name="grade_classes_create"),
     path('grade_classes.json', GradeClassList.as_view(), name="grade_classes"),
     path('grade_classes/<int:pk>.json', GradeClassDetail.as_view(), name="grade_classes_detail"),
 
