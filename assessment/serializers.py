@@ -1,6 +1,9 @@
+from django.db.models import Avg
+
 from rest_framework.serializers import (
 	HyperlinkedIdentityField,
 	ModelSerializer, 
+	Serializer,
 	SerializerMethodField,
 	StringRelatedField,
 	ListField,
@@ -8,10 +11,12 @@ from rest_framework.serializers import (
 	ValidationError,
 	)
 
+from main.models import Pupil
+
 from main.serializers import PupilListSer
 from institution.serializers import GradeSubjectListSer
 
-from institution.models import SchoolTeacher
+from institution.models import SchoolTeacher, GradeSubject, SchoolGrade, ClassPupil
 from . models import (
 	AssessType,
 	Assess,
@@ -333,6 +338,7 @@ class AssessTypeDetailSer(ModelSerializer):
 
 
 
+
 class ResultCreateSer(ModelSerializer):
 	"""
 		Description
@@ -365,6 +371,13 @@ class ResultCreateSer(ModelSerializer):
 			"pupil",
 			"marks",
 		]
+
+	def validate_pupil(self, value):
+		results = Result.objects.filter(pupil=pupil)
+		if results.exists():
+			raise ValidationError("You can create two results for a single student. Please go for update or delete")
+
+		return value
 
 	def create(self, validated_data):
 		assess = validated_data['assess']
@@ -479,3 +492,189 @@ class ResultDetailSer(ModelSerializer):
 	def get_pupil(self, obj):
 
 		return PupilListSer(obj.pupil).data
+
+
+
+
+class ShortResultSer(ModelSerializer):
+
+	name = SerializerMethodField()
+	nemis_no = SerializerMethodField()
+	class Meta:
+		model = Result
+		fields = [
+			"nemis_no",
+			"name",
+			"marks",
+		]
+
+	def get_name(self, obj):
+		return obj.pupil.first_name
+	def get_nemis_no(self, obj):
+		return obj.pupil.nemis_no
+
+
+class SubjectAssessDetailSer(ModelSerializer):
+	
+	
+	results = SerializerMethodField()
+
+	class Meta:
+		model = Assess
+		fields = [
+			"id",
+			"results",
+		]
+
+	
+	def get_results(self, obj):
+		request = self.context.get("request")
+		
+		pupils = obj.result_set.all()
+
+		return ShortResultSer(pupils, many=True).data
+
+
+
+class AssessTypePupilListSer(ModelSerializer):
+	results = SerializerMethodField()
+	class Meta:
+		model = AssessType
+		fields = [
+			"id",
+			"name",
+			"date",
+			"results",
+
+		]
+
+
+	def get_results(self, obj):
+		request = self.context.get("request")
+		pupil_nemis_no = self.context.get("pupil_nemis_no")
+		assesss = Assess.objects.filter(assess_type=obj)
+		if assesss.exists():
+			assesses = []
+			for assess in assesss:
+				try:
+					pupil_result = assess.result_set.get(pupil__nemis_no=pupil_nemis_no)
+					assess_context = { "name": assess.grade_subject.school_subject.subject.name, "marks":pupil_result.marks}
+				except:
+					assess_context = {}
+
+				assesses.append(assess_context)
+
+			return assesses
+		else:
+			return []
+
+
+class AssessPupilListSer(ModelSerializer):
+
+	exam = SerializerMethodField()
+	class Meta:
+		model = Result
+		fields = [
+			"exam",
+			"marks"
+		]
+
+	def get_exam(self, obj):
+
+		return obj.assess.assess_type.name
+
+
+
+class AssessTypeMinSer(ModelSerializer):
+
+	subjects = SerializerMethodField()
+	class Meta:
+		model = AssessType
+		fields = [
+			"id",
+			"name",
+			"subjects",
+		]
+
+	def get_subjects(self, obj):
+		subjects = obj.assessments.all()
+		subjects_context = []
+		for subject in subjects:
+			average = subject.result_set.aggregate(Avg("marks"))
+			result_context = {"name":subject.grade_subject.school_subject.subject.name, "average":average["marks__avg"]}
+
+			subjects_context.append(result_context)
+
+		return subjects_context
+
+class AssessPupilsMinSer(ModelSerializer):
+
+	pupils = SerializerMethodField()
+	class Meta:
+		model = AssessType
+		fields = [
+			"id",
+			"name",
+			"pupils",
+		]
+
+	def get_pupils(self, obj):
+
+		school_grade_id = self.context.get("school_grade_id")
+		grade_pupils = ClassPupil.objects.filter(grade_class__school_grade__id=school_grade_id)
+		pupils_context = []
+		for grade_pupil in grade_pupils:
+			pupil_context = {
+				"nemis_no":grade_pupil.pupil.nemis_no, 
+				"name":grade_pupil.pupil.first_name,
+				"subjects":[]
+				}
+			results = grade_pupil.pupil.result_set.filter(assess__assess_type=obj)
+			for result in results:
+				pupil_context["subjects"].append({"name":result.assess.grade_subject.school_subject.subject.name, "marks":result.marks})
+
+			pupils_context.append(pupil_context)
+
+		return pupils_context
+
+
+def result_avg(results):
+	
+	if results.count() > 0:
+		total = 0
+		for result in results:
+			total += result.marks
+		return total / results.count(), total
+	return 0, 0
+
+
+class AssessMinSer(ModelSerializer):
+
+	exams = SerializerMethodField()
+	name = SerializerMethodField()
+	class Meta:
+		model = Assess
+		fields = [
+			"id",
+			"name",
+			"exams",
+		]
+
+	def get_name(self, obj):
+		return obj.grade_subject.school_subject.subject.name
+
+	def get_exams(self, obj):
+		school_grade_id = self.context.get("school_grade_id")
+		school_grade = SchoolGrade.objects.get(id=school_grade_id)
+		results = obj.result_set.all()
+		exams_context_context = []
+		for assess_type in school_grade.assesstype_set.all():
+			assess_type_results = results.filter(assess__assess_type=assess_type)
+			average, total = result_avg(assess_type_results)
+
+			assess_type_context = {"name": assess_type.name, "total":total, "average":average}
+			exams_context_context.append(assess_type_context)
+		return exams_context_context
+
+		
+

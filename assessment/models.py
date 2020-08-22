@@ -11,6 +11,10 @@ class AssessManager(models.Manager):
 	def assesses(self, school_grade_id):
 		return Assess.objects.filter(assess_type__school_grade__id=school_grade_id)
 
+	def subject_assesses(self,assess_type_id, grade_subject_id):
+		assesses = Assess.objects.filter(grade_subject__id=grade_subject_id)
+		return assesses.filter(assess_type__id=assess_type_id)
+
 	def results(self, assess_id):
 		return Result.objects.filter(assess__id=assess_id)
 		
