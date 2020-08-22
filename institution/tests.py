@@ -741,7 +741,7 @@ class SchoolListTestCase(Users):
 
 class SchoolGradeListTestCase(Users):
 
-	list_url = reverse("institution:school_grades")
+	list_url = reverse("institution:school_grades", kwargs={"school_id": 1})
 
 	def test_authenticated_schools(self):
 
@@ -755,7 +755,7 @@ class SchoolGradeListTestCase(Users):
 
 class SchoolTeacherListTestCase(Users):
 
-	list_url = reverse("institution:school_teachers")
+	list_url = reverse("institution:school_teachers", kwargs={"school_id": 1})
 
 	def test_authenticated_schoolteacher(self):
 
@@ -769,7 +769,7 @@ class SchoolTeacherListTestCase(Users):
 
 class SchoolSubjectListTestCase(Users):
 
-	list_url = reverse("institution:school_subjects")
+	list_url = reverse("institution:school_subjects", kwargs={"school_id":1})
 
 	def test_authenticated_schoolsubject(self):
 
@@ -783,7 +783,7 @@ class SchoolSubjectListTestCase(Users):
 
 class GradeSubjectListTestCase(Users):
 
-	list_url = reverse("institution:grade_subjects")
+	list_url = reverse("institution:grade_subjects", kwargs={"school_grade_id":1})
 
 	def test_authenticated_schoolsubject(self):
 
@@ -797,7 +797,7 @@ class GradeSubjectListTestCase(Users):
 
 class GradeClasstListTestCase(Users):
 
-	list_url = reverse("institution:grade_classes")
+	list_url = reverse("institution:grade_classes", kwargs={"school_grade_id":1})
 
 	def test_authenticated_schoolsubject(self):
 
@@ -812,7 +812,7 @@ class GradeClasstListTestCase(Users):
 
 class ClassPupilListTestCase(Users):
 
-	list_url = reverse("institution:class_pupils")
+	list_url = reverse("institution:class_pupils", kwargs={"class_id":1})
 
 	def test_authenticated(self):
 
@@ -893,7 +893,7 @@ class SchoolDetailTestCase(Users):
 
 class SchoolGradeDetailTestCase(Users):
 
-	detail = reverse("institution:school_grades_detail", kwargs={"pk":1})
+	detail = reverse("institution:school_grades_detail", kwargs={"school_id":1, "pk":1})
 
 	
 	def test_authenticated_schools_detail(self):
@@ -963,7 +963,7 @@ class SchoolGradeDetailTestCase(Users):
 
 class SchoolTeacherDetailTestCase(Users):
 
-	detail = reverse("institution:school_teachers_detail", kwargs={"pk":1})
+	detail = reverse("institution:school_teachers_detail", kwargs={"school_id":1, "pk":1})
 
 	
 	def test_authenticated_schools_detail(self):
@@ -1052,7 +1052,7 @@ class SchoolTeacherDetailTestCase(Users):
 
 class SchoolSubjectDetailTestCase(Users):
 
-	detail = reverse("institution:school_subjects_detail", kwargs={"pk":1})
+	detail = reverse("institution:school_subjects_detail", kwargs={"school_id":1, "pk":1})
 
 	
 	def test_authenticated_detail(self):
@@ -1131,7 +1131,7 @@ class SchoolSubjectDetailTestCase(Users):
 
 class GradeSubjectDetailTestCase(Users):
 
-	detail = reverse("institution:grade_subjects_detail", kwargs={"pk":1})
+	detail = reverse("institution:grade_subjects_detail", kwargs={"school_grade_id":1, "pk":1})
 
 	
 	def test_authenticated_detail(self):
@@ -1211,7 +1211,7 @@ class GradeSubjectDetailTestCase(Users):
 
 class GradeClassDetailTestCase(Users):
 
-	detail = reverse("institution:grade_classes_detail", kwargs={"pk":1})
+	detail = reverse("institution:grade_classes_detail", kwargs={"school_grade_id":1, "pk":1})
 
 	
 	def test_authenticated_detail(self):
@@ -1291,7 +1291,7 @@ class GradeClassDetailTestCase(Users):
 
 class ClassPupilDetailTestCase(Users):
 
-	detail = reverse("institution:class_pupils_detail", kwargs={"pk":1})
+	detail = reverse("institution:class_pupils_detail", kwargs={"class_id":1, "pk":1})
 
 	
 	def test_authenticated_detail(self):

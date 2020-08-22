@@ -24,12 +24,8 @@ class IsSchoolStaff(BasePermission):
 
 		if obj == request.user:
 			return True
-		try:
-			
-			return obj.teacher.schoolteacher_set.first().school == request.user.teacher.schoolteacher_set.first().school and request.method in SAFE_METHODS
-		except:
-			
-			return request.user.is_superuser 
+		else:
+			return request.user.is_superuser
 
 
 

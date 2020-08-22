@@ -1,0 +1,21 @@
+
+
+MAIN
+------
+
+	http://127.0.0.1:8000/grades.json 				-->  returns list of grade
+	http://127.0.0.1:8000/grades/<int:pk>.json 		-->  returns detail of a grade
+
+	http://127.0.0.1:8000/pupils/create.json 		-->  create a pupil
+	http://127.0.0.1:8000/pupils/<int:pk>.json 		-->  returns detail of a pupil
+
+	http://127.0.0.1:8000/subjects.json 			-->  returns list of subjects
+	http://127.0.0.1:8000/subjects/<int:pk>.json 	-->  returns detail of a subject
+
+	http://127.0.0.1:8000/teachers/create.json 		-->  create a teacher
+	http://127.0.0.1:8000/teachers/<int:id_no>.json -->  returns detail of a teacher
+
+INSTITUTION
+-------------
+
+	

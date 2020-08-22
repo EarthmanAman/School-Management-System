@@ -340,7 +340,7 @@ class ResultCreateTest(Users):
 
 class AssessTypeListTest(Users):
 
-	list_url = reverse("assessment:assess_types")
+	list_url = reverse("assessment:assess_types", kwargs={"school_grade_id":1})
 
 	def test_authenticated(self):
 
@@ -358,7 +358,7 @@ class AssessTypeListTest(Users):
 
 class AssessListTest(Users):
 
-	list_url = reverse("assessment:assess")
+	list_url = reverse("assessment:assess", kwargs={"school_grade_id":1})
 
 	def test_authenticated(self):
 
@@ -376,7 +376,7 @@ class AssessListTest(Users):
 
 class ResultListTest(Users):
 
-	list_url = reverse("assessment:result")
+	list_url = reverse("assessment:result", kwargs={"assess_id":1})
 
 	def test_authenticated(self):
 
@@ -397,7 +397,7 @@ class ResultListTest(Users):
 
 class AssessTypeDetailTest(Users):
 
-	detail = reverse("assessment:assess_types_detail", kwargs={"pk":1})
+	detail = reverse("assessment:assess_types_detail", kwargs={"school_grade_id":1, "pk":1})
 
 	def test_authenticated_retrieve(self):
 		self.client.force_authenticate(user=self.create_un_user())
@@ -536,7 +536,7 @@ class AssessTypeDetailTest(Users):
 
 class AssessDetailTest(Users):
 
-	detail = reverse("assessment:assess_detail", kwargs={"pk":1})
+	detail = reverse("assessment:assess_detail", kwargs={"school_grade_id":1, "pk":1})
 
 	def test_authenticated_retrieve(self):
 		self.client.force_authenticate(user=self.create_un_user())
@@ -711,7 +711,7 @@ class AssessDetailTest(Users):
 
 class ResultDetailTest(Users):
 
-	detail = reverse("assessment:result_detail", kwargs={"pk":1})
+	detail = reverse("assessment:result_detail", kwargs={"assess_id":1, "pk":1})
 
 	def test_authenticated_retrieve(self):
 		self.client.force_authenticate(user=self.create_un_user())
@@ -859,7 +859,7 @@ class ResultDetailTest(Users):
 				{
 					"assess": self.assess.id,
 					"pupil": self.pupil.id,
-					"marks": 70,
+					"marks": 90,
 				}
 			)
 
@@ -875,7 +875,7 @@ class ResultDetailTest(Users):
 				{
 					"assess": self.assess.id,
 					"pupil": self.pupil.id,
-					"marks": 70,
+					"marks": 90,
 				}
 			)
 

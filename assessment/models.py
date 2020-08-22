@@ -3,6 +3,18 @@ from django.db import models
 from main.models import Pupil
 from institution.models import SchoolGrade, GradeSubject
 
+class AssessManager(models.Manager):
+
+	def assess_types(self, school_grade_id):
+		return AssessType.objects.filter(school_grade__id=school_grade_id)
+
+	def assesses(self, school_grade_id):
+		return Assess.objects.filter(assess_type__school_grade__id=school_grade_id)
+
+	def results(self, assess_id):
+		return Result.objects.filter(assess__id=assess_id)
+		
+
 
 class AssessType(models.Model):
 
@@ -32,6 +44,7 @@ class AssessType(models.Model):
 	name 			= models.CharField(max_length=50)
 	date 			= models.DateField()
 
+	objects = AssessManager()
 	# Methods
 
 	def __str__(self):
@@ -69,6 +82,8 @@ class Assess(models.Model):
 	grade_subject 	= models.ForeignKey(GradeSubject, on_delete=models.SET_NULL, null=True)
 
 	date 			= models.DateField(blank=True, null=True)
+
+	objects = AssessManager()
 
 	# Methods
 
@@ -108,6 +123,8 @@ class Result(models.Model):
 	pupil 	= models.ForeignKey(Pupil, on_delete=models.CASCADE)
 
 	marks 	= models.FloatField()
+
+	objects = AssessManager()
 
 	# Methods
 

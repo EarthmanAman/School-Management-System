@@ -4,6 +4,33 @@ from main.models import Grade, Pupil, Subject, Teacher
 from rest_framework.reverse import reverse as api_reverse
 
 
+class AllManager(models.Manager):
+
+	def school_grades(self, school_id):
+		school_grades = SchoolGrade.objects.filter(school__id=school_id)
+		return school_grades
+
+	def school_teachers(self, school_id):
+
+		return SchoolTeacher.objects.filter(school__id=school_id)
+
+	def school_subjects(self, school_id):
+
+		return SchoolSubject.objects.filter(school__id=school_id)
+
+	def grade_subjects(self, school_grade_id):
+
+		return GradeSubject.objects.filter(school_grade__id=school_grade_id)
+
+	def grade_classes(self, school_grade_id):
+
+		return GradeClass.objects.filter(school_grade__id=school_grade_id)
+
+	def class_pupils(self, class_id):
+
+		return ClassPupil.objects.filter(grade_class__id=class_id)
+
+
 class School(models.Model):
 
 	"""
@@ -106,10 +133,12 @@ class SchoolTeacher(models.Model):
 	employment_status 	= models.CharField(max_length=2, choices=_EMPLOYMENT_STATUS)	
 	position 			= models.CharField(max_length=3, choices=_POSITION, default="s")
 
+	objects = AllManager()
+
 	# Methods
 
 	def get_indv_url(self, request=None):
-		return api_reverse("institution:school_teachers_detail", kwargs={"pk":self.id},  request=request)
+		return api_reverse("institution:school_teachers_detail", kwargs={"school_id":self.school.id, "pk":self.id},  request=request)
 
 
 	def __str__(self):
@@ -146,10 +175,11 @@ class SchoolGrade(models.Model):
 	grade 	= models.ForeignKey(Grade, on_delete=models.PROTECT)
 	school 	= models.ForeignKey(School, on_delete=models.PROTECT)
 
+	objects = AllManager()
 	# Methods
 	
 	def get_indv_url(self, request=None):
-		return api_reverse("institution:school_grades_detail", kwargs={"pk":self.id},  request=request)
+		return api_reverse("institution:school_grades_detail", kwargs={"school_id":self.school.id, "pk":self.id},  request=request)
 
 	def class_teachers(self):
 		grade_classes = self.gradeclass_set.all()
@@ -190,10 +220,11 @@ class SchoolSubject(models.Model):
 	school 	= models.ForeignKey(School, on_delete=models.PROTECT)
 	subject = models.ForeignKey(Subject, on_delete=models.PROTECT)
 
+	objects = AllManager()
 	# Methods
 
 	def get_indv_url(self, request=None):
-		return api_reverse("institution:school_subjects_detail", kwargs={"pk":self.id},  request=request)
+		return api_reverse("institution:school_subjects_detail", kwargs={"school_id":self.school.id, "pk":self.id},  request=request)
 
 	def __str__(self):
 		return self.subject.__str__() + " :- " + self.school.__str__()
@@ -226,10 +257,11 @@ class GradeSubject(models.Model):
 	school_subject 	= models.ForeignKey(SchoolSubject, on_delete=models.PROTECT)
 	subject_teacher	= models.ForeignKey(SchoolTeacher, on_delete=models.SET_NULL, null=True)
 
+	objects = AllManager()
 	# Methods
 
 	def get_indv_url(self, request=None):
-		return api_reverse("institution:grade_subjects_detail", kwargs={"pk":self.id},  request=request)
+		return api_reverse("institution:grade_subjects_detail", kwargs={"school_grade_id":self.school_grade.id, "pk":self.id},  request=request)
 
 	def __str__(self):
 		return self.school_subject.__str__() + " : " + self.school_grade.__str__()
@@ -267,10 +299,11 @@ class GradeClass(models.Model):
 
 	name 			= models.CharField(max_length=50, default="default")
 
+	objects = AllManager()
 	# Methods
 
 	def get_indv_url(self, request=None):
-		return api_reverse("institution:grade_classess_detail", kwargs={"pk":self.id},  request=request)
+		return api_reverse("institution:grade_classess_detail", kwargs={"school_grade_id":self.school_grade.id, "pk":self.id},  request=request)
 
 	def __str__(self):
 		return self.name + " - " + self.school_grade.grade.name + " - " + self.school_grade.school.name
@@ -304,6 +337,7 @@ class ClassPupil(models.Model):
 	grade_class	= models.ForeignKey(GradeClass, on_delete=models.CASCADE)
 	pupil 		= models.OneToOneField(Pupil, on_delete=models.PROTECT)
 
+	objects = AllManager()
 	# Methods
 
 	def get_indv_url(self, request=None):

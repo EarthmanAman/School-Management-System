@@ -37,9 +37,6 @@ class MainListTestCase(Users):
 
 	grades = reverse("main:grades")
 	subjects = reverse("main:subjects")
-	pupils = reverse("main:pupils")
-	teachers = reverse("main:teachers")
-	teachers_create = reverse("main:teachers_create")
 
 	def test_users_authenticated_grades(self):
 
@@ -51,26 +48,10 @@ class MainListTestCase(Users):
 		response = self.client.get(self.subjects)
 		self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-	def test_users_authenticated_pupils(self):
-
-		response = self.client.get(self.pupils)
-		self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-	def test_users_authenticated_teachers(self):
-
-		response = self.client.get(self.teachers)
-		self.assertEqual(response.status_code, status.HTTP_200_OK)
-
 	def test_users_unauthenticated_grades(self):
 		
 		self.client.force_authenticate(user=None)
 		response = self.client.get(self.grades)
-		self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-
-	def test_users_unauthenticated_pupils(self):
-		
-		self.client.force_authenticate(user=None)
-		response = self.client.get(self.pupils)
 		self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 	def test_users_unauthenticated_subjects(self):
@@ -79,11 +60,7 @@ class MainListTestCase(Users):
 		response = self.client.get(self.subjects)
 		self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-	def test_users_unauthenticated_teachers(self):
-		
-		self.client.force_authenticate(user=None)
-		response = self.client.get(self.teachers)
-		self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
 
 
 
@@ -91,8 +68,7 @@ class MainCreateTestCase(Users):
 
 	grades = reverse("main:grades")
 	subjects = reverse("main:subjects")
-	pupils = reverse("main:pupils")
-	teachers = reverse("main:teachers")
+	pupils = reverse("main:pupils_create")
 	teachers_create = reverse("main:teachers_create")
 
 
@@ -308,7 +284,7 @@ class MainPupilDetailTestCase(Users, PupilClass):
 
 class MainTeacherDetailTestCase(Users):
 
-	detail = reverse("main:teachers_detail", kwargs={"pk":1})
+	detail = reverse("main:teachers_detail", kwargs={"id_no":1234567})
 
 	
 	def test_detail_retrieve(self):
@@ -320,12 +296,12 @@ class MainTeacherDetailTestCase(Users):
 		response = self.client.get(self.detail)
 		self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-	def test_authenticated_teacher_detail_retrieve(self):
+	def test_authenticated_retrieve(self):
 		self.client.force_authenticate(user=self.create_un_user())
 		response = self.client.get(self.detail)
 		self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-	def test_authenticated_teacher_detail_retrieve(self):
+	def test_schoolteacher_detail_retrieve(self):
 		user = self.create_school_teacher(school=self.school, teacher=self.create_unschool_teacher())
 		self.client.force_authenticate(user=user.teacher.user)
 		response = self.client.get(self.detail)

@@ -18,7 +18,7 @@ from rest_framework.response import Response
 from rest_framework.validators import ValidationError
 
 from institution.models import School
-from institution.permissions import IsSchoolTeacher, IsSchoolStaff
+from institution.permissions import IsSchoolTeacher, IsSchoolStaff, IsSchoolHead
 
 from . models import Grade, Pupil, Subject, Teacher
 from . permissions import IsSchoolStaffTeacher
@@ -153,7 +153,7 @@ class GradeDetail(RetrieveAPIView):
 
 # Pupil
 
-class PupilList(ListCreateAPIView):
+class PupilCreate(CreateAPIView):
 	"""
 		Description
 		-------------
@@ -167,7 +167,7 @@ class PupilList(ListCreateAPIView):
 
 	def create(self, request, *args, **kwargs):
 		try:
-			return super(ListCreateAPIView, self).create(request, *args, **kwargs)
+			return super(CreateAPIView, self).create(request, *args, **kwargs)
 		except IntegrityError:
 			return Response({"error": "The nemis number has already been used"})
 
@@ -250,7 +250,7 @@ class TeacherList(ListCreateAPIView):
 
 
 
-class TeacherDetail(RetrieveUpdateDestroyAPIView):
+class TeacherDetail(RetrieveUpdateAPIView):
 	"""
 		Description
 		-------------
@@ -258,6 +258,6 @@ class TeacherDetail(RetrieveUpdateDestroyAPIView):
 	"""
 	serializer_class = TeacherDetailSer
 	queryset = Teacher.objects.all()
+	permission_classes = [IsAuthenticated, IsSchoolHead]
 
-	permission_classes = [IsAuthenticated, IsSchoolStaffTeacher]
-
+	lookup_field = "id_no"

@@ -128,6 +128,7 @@ class SchoolTeacherListSer(ModelSerializer):
 	class Meta:
 		model = SchoolTeacher
 		fields = [
+			"id",
 			"info",
 			"employment_status",
 			"position",

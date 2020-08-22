@@ -41,7 +41,6 @@ from . serializers import (
 
 class AssessTypeCreate(CreateAPIView):
 	serializer_class = AssessTypeCreateSer
-	queryset = AssessType.objects.all()
 
 	def get_serializer_context(self, *args, **kwargs):
 		return {"request":self.request}
@@ -49,14 +48,20 @@ class AssessTypeCreate(CreateAPIView):
 class AssessTypeList(ListAPIView):
 
 	serializer_class = AssessTypeListSer
-	queryset = AssessType.objects.all()
+
+	def get_queryset(self, *args, **kwargs):
+		school_grade_id = self.kwargs.get("school_grade_id")
+		return AssessType.objects.assess_types(int(school_grade_id))
 
 class AssessTypeDetail(RetrieveUpdateAPIView):
 	serializer_class = AssessTypeDetailSer
 	queryset = AssessType.objects.all()
 	permission_classes = [IsAuthenticated, IsClassTeacher_Assess_Type]
 
-
+	def get_queryset(self, *args, **kwargs):
+		school_grade_id = self.kwargs.get("school_grade_id")
+		return AssessType.objects.assess_types(int(school_grade_id))
+		
 
 
 class AssessCreate(CreateAPIView):
@@ -72,11 +77,18 @@ class AssessList(ListAPIView):
 	serializer_class = AssessListSer
 	queryset = Assess.objects.all()
 
+	def get_queryset(self, *args, **kwargs):
+		school_grade_id = self.kwargs.get("school_grade_id")
+		return Assess.objects.assesses(int(school_grade_id))
+		
 class AssessDetail(RetrieveUpdateAPIView):
 	serializer_class = AssessDetailSer
 	queryset = Assess.objects.all()
 	permission_classes = [IsAuthenticated, IsSubjectTeacher_Assess]
 
+	def get_queryset(self, *args, **kwargs):
+		school_grade_id = self.kwargs.get("school_grade_id")
+		return Assess.objects.assesses(int(school_grade_id))
 
 
 
@@ -88,10 +100,17 @@ class ResultCreate(CreateAPIView):
 class ResultList(ListAPIView):
 
 	serializer_class = ResultListSer
-	queryset = Result.objects.all()
+
+	def get_queryset(self, *args, **kwargs):
+		assess_id = self.kwargs.get("assess_id")
+		return Result.objects.results(int(assess_id))
+
 
 class ResultDetail(RetrieveUpdateAPIView):
 	serializer_class = ResultDetailSer
-	queryset = Result.objects.all()
 
 	permission_classes = [IsAuthenticated, IsSubjectTeacher_Result]
+
+	def get_queryset(self, *args, **kwargs):
+		assess_id = self.kwargs.get("assess_id")
+		return Result.objects.results(int(assess_id))

@@ -15,7 +15,7 @@ from rest_framework.generics import (
 
 from rest_framework.validators import ValidationError
 
-from institution.permissions import IsSchoolStaff
+from . permissions import IsOwner
 from . serializers import UserSer, UserCreateSer
 
 
@@ -42,7 +42,7 @@ class UserList(ListAPIView):
 class UserDetail(RetrieveUpdateAPIView):
 	serializer_class = UserSer
 	queryset = User.objects.all()
-	permission_classes = [IsAuthenticated, IsSchoolStaff]
+	permission_classes = [IsAuthenticated, IsOwner]
 
 
 class UserCreate(CreateAPIView):
