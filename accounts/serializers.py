@@ -46,6 +46,50 @@ class UserSer(ModelSerializer):
 
 		]
 
+class UserSerDetail(ModelSerializer):
+
+	"""
+		Description
+		-------------
+			* Serializer for the User Model
+			* Handle detailed info about a user
+
+		Variables
+		----------
+			* No variables
+
+		Fields
+		---------
+			id
+			username
+			first_name
+			last_name
+			email
+
+		Methods
+		--------
+
+	"""
+
+	class Meta:
+		model = User
+		fields = [
+			"email",
+			"first_name",
+			"last_name",
+
+		]
+
+	def update(self, instance, validated_data):
+
+		if instance.username != validated_data.get("email", instance.username):
+			instance.username = validated_data["email"]
+
+		instance.email = validated_data.get("email", instance.email)
+		instance.first_name = validated_data.get("first_name", instance.first_name)
+		instance.last_name = validated_data.get("last_name", instance.last_name)
+		instance.save()
+		return instance
 
 class UserCreateSer(ModelSerializer):
 

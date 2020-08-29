@@ -8,7 +8,7 @@ app_name = "accounts"
 
 urlpatterns = [
    path("users.json", UserList.as_view(), name="users"),
-   path("users/<int:pk>.json", UserDetail.as_view(), name="user_detail"),
+   path("users/<str:username>", UserDetail.as_view(), name="user_detail"),
    path("register", UserCreate.as_view()	, name="register"),
    path("login", obtain_auth_token	, name="login"),
 ] 

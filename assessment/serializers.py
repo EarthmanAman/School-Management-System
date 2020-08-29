@@ -371,13 +371,16 @@ class ResultCreateSer(ModelSerializer):
 			"pupil",
 			"marks",
 		]
+	
+	def validate(self, validated_data):
+		assess = validated_data["assess"]
+		pupil = validated_data["pupil"]
+		try:
+			results = assess.result_set.filter(pupil=pupil)
 
-	def validate_pupil(self, value):
-		results = Result.objects.filter(pupil=pupil)
-		if results.exists():
+			return validated_data
+		except:
 			raise ValidationError("You can create two results for a single student. Please go for update or delete")
-
-		return value
 
 	def create(self, validated_data):
 		assess = validated_data['assess']

@@ -24,6 +24,8 @@ from . models import (
 
 from . permissions import (
 	IsSchoolHead, 
+	IsSchoolHead_School_Teacher,
+	IsSchoolStaffTeacher_Grade,
 	IsClassTeacher_Class, 
 	IsSchoolStaffTeacher_Class,
 	IsClassTeacher_Class_Pupil, 
@@ -94,7 +96,7 @@ class SchoolGradeList(ListAPIView):
 class SchoolGradeDetail(RetrieveUpdateAPIView):
 	serializer_class = SchoolGradeDetailSer
 
-	permission_classes = [IsAuthenticated, IsSchoolHead]
+	permission_classes = [IsAuthenticated, IsSchoolStaffTeacher_Grade]
 
 	def get_queryset(self, *args, **kwargs):
 		school_id = self.kwargs.get("school_id")
@@ -118,7 +120,7 @@ class SchoolTeacherList(ListAPIView):
 class SchoolTeacherDetail(RetrieveUpdateAPIView):
 	serializer_class = SchoolTeacherDetailSer
 
-	permission_classes = [IsAuthenticated, IsSchoolHead]
+	permission_classes = [IsAuthenticated, IsSchoolHead_School_Teacher]
 
 	def get_queryset(self, *args, **kwargs):
 		school_id = self.kwargs.get("school_id")
@@ -143,7 +145,7 @@ class SchoolSubjectList(ListAPIView):
 class SchoolSubjectDetail(RetrieveUpdateAPIView):
 	serializer_class = SchoolSubjectDetailSer
 
-	permission_classes = [IsAuthenticated, IsSchoolHead]
+	permission_classes = [IsAuthenticated, IsSchoolHead_School_Teacher]
 
 	def get_queryset(self, *args, **kwargs):
 		school_id = self.kwargs.get("school_id")
@@ -174,6 +176,13 @@ class GradeSubjectDetail(RetrieveUpdateAPIView):
 		return GradeSubject.objects.grade_subjects(int(school_grade_id))
 
 
+class SchoolGradeSubjectList(ListAPIView):
+	serializer_class = GradeSubjectListSer
+
+	def get_queryset(self, *args, **kwargs):
+		school_id = self.kwargs.get("school_id")
+		return GradeSubject.objects.filter(school_grade__school__id=int(school_id))
+
 # Grade Class
 
 class GradeClassCreate(CreateAPIView):
@@ -193,10 +202,17 @@ class GradeClassDetail(RetrieveUpdateAPIView):
 	serializer_class = GradeClassDetailSer
 
 	permission_classes = [IsAuthenticated, IsSchoolHead, ]
-
+	lookup_field = "name"
 	def get_queryset(self, *args, **kwargs):
 		school_grade_id = self.kwargs.get("school_grade_id")
 		return GradeClass.objects.grade_classes(int(school_grade_id))
+
+class SchoolGradeClassList(ListAPIView):
+	serializer_class = GradeClassListSer
+
+	def get_queryset(self, *args, **kwargs):
+		school_id = self.kwargs.get("school_id")
+		return GradeClass.objects.filter(school_grade__school__id=int(school_id))
 
 
 # Grade Pupil
@@ -216,6 +232,12 @@ class ClassPupilList(ListAPIView):
 		class_id = self.kwargs.get("class_id")
 		return ClassPupil.objects.class_pupils(int(class_id))
 
+class SchoolPupilList(ListAPIView):
+	serializer_class = ClassPupilListSer
+
+	def get_queryset(self, *args, **kwargs):
+		class_id = self.kwargs.get("school_id")
+		return ClassPupil.objects.filter(grade_class__school_grade__school__id=int(class_id))
 
 class ClassPupilDetail(RetrieveUpdateAPIView):
 	serializer_class = ClassPupilDetailSer

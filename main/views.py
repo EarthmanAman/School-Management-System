@@ -19,6 +19,7 @@ from rest_framework.validators import ValidationError
 
 from institution.models import School
 from institution.permissions import IsSchoolTeacher, IsSchoolStaff, IsSchoolHead
+from . permissions import IsSchoolHeadTeacher
 
 from . models import Grade, Pupil, Subject, Teacher
 from . permissions import IsSchoolStaffTeacher
@@ -142,7 +143,7 @@ class GradeList(ListAPIView):
 	queryset = Grade.objects.all()
 
 
-class GradeDetail(RetrieveAPIView):
+class GradeDetail(RetrieveUpdateAPIView):
 	serializer_class = GradeDetailSer
 	queryset = Grade.objects.all()
 
@@ -258,6 +259,6 @@ class TeacherDetail(RetrieveUpdateAPIView):
 	"""
 	serializer_class = TeacherDetailSer
 	queryset = Teacher.objects.all()
-	permission_classes = [IsAuthenticated, IsSchoolHead]
+	permission_classes = [IsAuthenticated, IsSchoolHeadTeacher]
 
 	lookup_field = "id_no"

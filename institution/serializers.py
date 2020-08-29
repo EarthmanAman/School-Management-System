@@ -1,6 +1,7 @@
 from rest_framework.serializers import (
 	HyperlinkedIdentityField,
 	ModelSerializer, 
+	PrimaryKeyRelatedField,
 	SerializerMethodField,
 	ListField,
 	ValidationError,
@@ -16,6 +17,7 @@ from main.serializers import (
 	TeacherDetailSer,
 	)
 
+from main.models import Pupil
 from . models import (
 	School,
 	SchoolTeacher,
@@ -155,17 +157,17 @@ class SchoolTeacherDetailSer(ModelSerializer):
 			* No methods
 
 	"""
-	info = SerializerMethodField()
+	teacher = SerializerMethodField()
 
 	class Meta:
 		model = SchoolTeacher
 		fields = [
-			"info",
+			"teacher",
 			"employment_status",
 			"position",
 		]
 
-	def get_info(self, obj):
+	def get_teacher(self, obj):
 
 		return TeacherDetailSer(obj.teacher).data
 
@@ -193,7 +195,6 @@ class SchoolGradeCreateSer(ModelSerializer):
 			"grade",
 			"school",
 		]
-
 
 
 class SchoolGradeListSer(ModelSerializer):
@@ -275,6 +276,16 @@ class SchoolSubjectCreateSer(ModelSerializer):
 			"subject",
 		]
 
+	def validate(self, validated_data):
+
+		school = validated_data["school"]
+		subject = validated_data["subject"]
+		school_subjects = school.schoolsubject_set.filter(subject=subject)
+		if school_subjects.exists():
+			raise ValidationError("This subject already exist in this school")
+
+		return validated_data
+
 
 
 class SchoolSubjectListSer(ModelSerializer):
@@ -297,6 +308,7 @@ class SchoolSubjectListSer(ModelSerializer):
 	class Meta:
 		model = SchoolSubject
 		fields = [
+			"id",
 			"subjects",
 		]
 
@@ -320,15 +332,15 @@ class SchoolSubjectDetailSer(ModelSerializer):
 			* No methods
 
 	"""
-	subjects = SerializerMethodField()
+	subject = SerializerMethodField()
 
 	class Meta:
 		model = SchoolSubject
-		fields = [
-			"subjects",
+		fields = [	
+			"subject",
 		]
 
-	def get_subjects(self, obj):
+	def get_subject(self, obj):
 
 		return SubjectDetailSer(obj.subject).data
 
@@ -355,6 +367,30 @@ class GradeSubjectCreateSer(ModelSerializer):
 			* No methods
 
 	"""
+	school_grade = PrimaryKeyRelatedField(
+		queryset = SchoolGrade.objects.all(),
+		error_messages={
+			"required": "You did not input any school grade",
+			"does_not_exist": "The grade you select for the school does not exit. First create the grade",
+			"incorrect_type": "The ID of the school grade is in incorrect format",
+		})
+
+	school_subject = PrimaryKeyRelatedField(
+		queryset = SchoolSubject.objects.all(),
+		error_messages={
+			"required": "You did not input any school subject",
+			"does_not_exist": "The school subject you select does not exit. First create the subject",
+			"incorrect_type": "The ID of the school subject is in incorrect format",
+		})
+
+	subject_teacher = PrimaryKeyRelatedField(
+		queryset = SchoolTeacher.objects.all(),
+		error_messages={
+			"required": "You did not input any teacher",
+			"does_not_exist": "The school teacher you select does not exit. First create the teacher",
+			"incorrect_type": "The ID of the school teacher is in incorrect format",
+		})
+
 
 	class Meta:
 		model = GradeSubject
@@ -490,6 +526,18 @@ class GradeClassCreateSer(ModelSerializer):
 			"name",
 		]
 
+	def validate(self, validated_data):
+		school_grade = validated_data["school_grade"]
+		grade_classes = None
+		try:
+			grade_classes = school_grade.gradeclass_set.filter(name=validated_data["name"])
+		except:
+			None
+		if grade_classes.exists():
+			raise ValidationError("A class with this name already exists in this grade.")
+
+		return validated_data
+
 
 class GradeClassListSer(ModelSerializer):
 	"""
@@ -519,6 +567,7 @@ class GradeClassListSer(ModelSerializer):
 	class Meta:
 		model = GradeClass
 		fields = [
+			"id",
 			"school_grade",
 			"class_teacher",
 			"name",
@@ -612,6 +661,23 @@ class ClassPupilCreateSer(ModelSerializer):
 
 	"""
 
+	grade_class = PrimaryKeyRelatedField(
+		queryset = GradeClass.objects.all(),
+		error_messages={
+			"required": "You did not input any grade class",
+			"does_not_exist": "The grade you select for the class does not exit. First create the grade",
+			"incorrect_type": "The ID of the class grade is in incorrect format",
+		})
+
+	pupil = PrimaryKeyRelatedField(
+		queryset = Pupil.objects.all(),
+		error_messages={
+			"required": "You did not input any pupil",
+			"does_not_exist": "The pupil you select does not exit. First create the pupil",
+			"incorrect_type": "The ID of the pupil is in incorrect format",
+		})
+
+
 	class Meta:
 		model = ClassPupil
 		fields = [
@@ -629,16 +695,16 @@ class ClassPupilCreateSer(ModelSerializer):
 			heads = school_teachers.filter(position="ht")
 
 			if grade_class.class_teacher in school_teachers:
-				return validated_data
+				return ClassPupil.objects.create(grade_class=grade_class, pupil=validated_data["pupil"])
 
 			if heads.exists():
 				for head in heads:
 					if head.school == grade_class.class_teacher.school:
-						return validated_data
+						return ClassPupil.objects.create(grade_class=grade_class, pupil=validated_data["pupil"])
 
 			if request.user.is_superuser:
 
-				return validated_data
+				return ClassPupil.objects.create(grade_class=grade_class, pupil=validated_data["pupil"])
 
 
 			raise ValidationError("You do not have permission to do this action")
@@ -646,7 +712,7 @@ class ClassPupilCreateSer(ModelSerializer):
 			
 			if request.user.is_superuser:
 				
-				return validated_data
+				return ClassPupil.objects.create(grade_class=grade_class, pupil=validated_data["pupil"])
 
 			raise ValidationError("You do not have permission to do this action")
 	
@@ -723,6 +789,7 @@ class ClassPupilDetailSer(ModelSerializer):
 	class Meta:
 		model = ClassPupil
 		fields = [
+			"grade_class",
 			"pupil",
 		]
 

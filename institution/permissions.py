@@ -50,6 +50,22 @@ class IsSchoolHead(BasePermission):
 		except:
 			return request.user.is_superuser
 
+class IsSchoolHead_School_Teacher(BasePermission):
+
+	def has_object_permission(self, request, view, obj):
+		try:
+			school_heads = request.user.teacher.schoolteacher_set.filter(position="ht")
+			
+			if school_heads.exists():	
+				return True
+
+			elif [True for teacher in request.user.teacher.schoolteacher_set.all() if teacher.school == obj.school] and request.method in SAFE_METHODS:
+				return True
+
+			return request.user.is_superuser
+		except:
+			return request.user.is_superuser
+
 
 class IsClassTeacher_Class(BasePermission):
 
@@ -61,10 +77,30 @@ class IsClassTeacher_Class(BasePermission):
 			return True
 		return request.user.is_superuser
 
+
+class IsSchoolStaffTeacher_Grade(BasePermission):
+
+	def has_object_permission(self, request, view, obj):
+		
+		try:
+
+			school_teachers = request.user.teacher.schoolteacher_set()
+			for school_teacher in school_teachers:
+				if school_teacher in obj.school.schoolteacher_set.all():
+					return True
+
+				elif school_teacher["position"]== "ht" and school_teacher.school == obj.school:
+					return True
+			return request.user.is_superuser
+		except:
+			return request.user.is_superuser
+
+
+
 class IsSchoolStaffTeacher_Class_Pupil(BasePermission):
 
 	def has_object_permission(self, request, view, obj):
-		print("In hereee")
+		
 		try:
 
 			school_teachers = request.user.teacher.schoolteacher_set()

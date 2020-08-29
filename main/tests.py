@@ -84,7 +84,7 @@ class MainCreateTestCase(Users):
 					"employee_id": 22222,
 					"phone_no": 34627,
 					"subjects": set([]),
-					"dob":"1984-08-08",
+					
 				},
 				format="json"
 			)
@@ -102,7 +102,7 @@ class MainCreateTestCase(Users):
 					"employee_id": 22222,
 					"phone_no": 34627,
 					"subjects": set([]),
-					"dob":"1984-08-08",
+					
 				},
 				format="json"
 			)
@@ -199,7 +199,7 @@ class MainPupilDetailTestCase(Users, PupilClass):
 					id_no= 1245373,
 					employee_id= 2234222,
 					phone_no= 3462709,
-					dob= "1984-08-08",
+					
 					)
 		self.client.force_authenticate(user=user)
 		response = self.client.get(self.detail)
@@ -320,7 +320,7 @@ class MainTeacherDetailTestCase(Users):
 				"id_no": 9999,
 				"employee_id": 2234222,
 				"phone_no": 3462709,
-				"dob": "1984-08-08",
+				
 				
 			})
 
@@ -338,7 +338,7 @@ class MainTeacherDetailTestCase(Users):
 				"id_no": 9999,
 				"employee_id": 2234222,
 				"phone_no": 3462709,
-				"dob": "1984-08-08",
+				
 				
 			})
 
@@ -353,7 +353,7 @@ class MainTeacherDetailTestCase(Users):
 				"id_no": 9999,
 				"employee_id": 2234222,
 				"phone_no": 3462709,
-				"dob": "1984-08-08",
+				
 				
 			})
 

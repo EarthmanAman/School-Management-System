@@ -107,7 +107,7 @@ class Pupil(models.Model):
 
 	first_name 	= models.CharField(max_length=100,)
 	last_name  	= models.CharField(max_length=100)
-	middle_name = models.CharField(max_length=100, null=True)
+	middle_name = models.CharField(max_length=100, null=True, blank=True)
 
 	dob 		= models.DateField()
 	nationality = models.CharField(max_length=100, default="kenya")
@@ -203,8 +203,6 @@ class Teacher(models.Model):
 	id_no 		= models.IntegerField(validators=[validate_id_no])
 	employee_id = models.IntegerField(blank=True, null=True)
 	phone_no 	= models.IntegerField()
-
-	dob 		= models.DateField()
 
 
 	# Methods

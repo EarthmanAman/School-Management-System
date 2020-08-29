@@ -59,20 +59,13 @@ class GradeDetailSer(ModelSerializer):
 			* No methods
 	"""
 
-	grades = SerializerMethodField()
-
 	class Meta:
 		model = Grade
 		fields = [
 			"id",
 			"name",
-			"grades",
 		]
 
-
-	def get_grades(self, obj):
-		request = self.context.get("request")
-		return obj.get_list_url(request)
 
 class PupilCreateSer(ModelSerializer):
 	"""
@@ -371,14 +364,6 @@ class TeacherCreateSer(ModelSerializer):
 			"incorrect_type": "The ID of the user was incorrect",
 		})
 
-	subjects = PrimaryKeyRelatedField(
-		queryset = Subject.objects.all(),
-		many=True,
-		error_messages={
-			"required": "No user was associated",
-			"does_not_exist": "The subject you select does not exit",
-			"incorrect_type": "The ID of the subject was incorrect",
-		})
 
 	id_no = IntegerField(
 		required=True, 
@@ -402,12 +387,6 @@ class TeacherCreateSer(ModelSerializer):
 			"max_value": "Phone Number should not exceed 10 digit",
 			})
 
-	dob = DateField(
-		required=True, 
-		error_messages={
-			"invalid": "Date should be valid"
-			})
-
 	class Meta:
 		model = Teacher
 		fields = [
@@ -416,7 +395,6 @@ class TeacherCreateSer(ModelSerializer):
 			"id_no",
 			"employee_id",
 			"phone_no",
-			"dob",
 		]
 
 
@@ -464,7 +442,6 @@ class TeacherListSer(ModelSerializer):
 			"id_no",
 			"employee_id",
 			"phone_no",
-			"dob",
 			
 		]
 
@@ -518,7 +495,6 @@ class TeacherDetailSer(ModelSerializer):
 			"id_no",
 			"employee_id",
 			"phone_no",
-			"dob",
 		]
 
 

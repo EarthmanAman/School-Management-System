@@ -84,7 +84,7 @@ class Users(APITestCase):
 				id_no= 1234567,
 				employee_id=222222,
 				phone_no= 345627,
-				dob="1984-08-08",
+				
 			)
 
 		teacher.subjects.set(subject)
@@ -119,7 +119,7 @@ class Users(APITestCase):
 					id_no= 1245373,
 					employee_id= 2234222,
 					phone_no= 3462709,
-					dob= "1984-08-08",
+					
 					)
 		return teacher
 
