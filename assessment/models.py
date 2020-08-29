@@ -52,7 +52,7 @@ class AssessType(models.Model):
 	# Methods
 
 	def __str__(self):
-		return self.name + " :- " + self.school_grade.__str__()
+		return self.name + " :- " + self.school_grade.__str__() 
 
 
 class Assess(models.Model):
@@ -93,7 +93,7 @@ class Assess(models.Model):
 
 	def __str__(self):
 
-		return self.grade_subject.__str__() + " :- " + self.assess_type.__str__()
+		return self.grade_subject.__str__() + " :- " + self.assess_type.__str__() + " :- " +  str(self.date)
 
 
 class Result(models.Model):
@@ -134,4 +134,4 @@ class Result(models.Model):
 
 	def __str__(self):
 
-		return str(self.marks)
+		return str(self.marks) + " :- " + self.pupil.first_name + " " + self.pupil.last_name + " :- " + self.assess.grade_subject.school_subject.subject.name + " :- " + self.assess.assess_type.name

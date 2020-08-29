@@ -8,6 +8,10 @@ from rest_framework.serializers import (
 	StringRelatedField,
 	ListField,
 
+	CharField,
+	DateField,
+	PrimaryKeyRelatedField,
+
 	ValidationError,
 	)
 
@@ -49,6 +53,27 @@ class AssessCreateSer(ModelSerializer):
 			* No methods
 
 	"""
+	assess_type = PrimaryKeyRelatedField(
+		queryset = AssessType.objects.all(),
+		error_messages={
+			"required": "You did not input any Exam",
+			"does_not_exist": "The subject you select does not exit. First create the school subject",
+			"incorrect_type": "The ID of the exam is in incorrect format",
+		})
+
+	grade_subject = PrimaryKeyRelatedField(
+		queryset = GradeSubject.objects.all(),
+		error_messages={
+			"required": "You did not input any Subject",
+			"does_not_exist": "The subject you select does not exit. First create the grade subject",
+			"incorrect_type": "The ID of the subject is in incorrect format",
+		})
+
+	date = DateField(
+			required=True, 
+			error_messages={
+				"invalid": "Date should be valid"
+				})
 
 
 	class Meta:
@@ -58,6 +83,21 @@ class AssessCreateSer(ModelSerializer):
 			"grade_subject",
 			"date",
 		]
+
+	def validate(self, validated_data):
+		assess_type = validated_data["assess_type"]
+		grade_subject = validated_data["grade_subject"]
+
+		assess_exist = assess_type.assessments.filter(grade_subject=grade_subject)
+		if assess_exist.exists():
+			raise ValidationError("This assessment has already been created")
+
+		same_grade = assess_type.school_grade == grade_subject.school_grade
+
+		if not same_grade:
+			raise ValidationError("The subject you select is not found in the grade")
+
+		return validated_data
 
 	def create(self, validated_data):
 		grade_subject = validated_data['grade_subject']
@@ -69,20 +109,40 @@ class AssessCreateSer(ModelSerializer):
 
 			for school_teacher in school_teachers:
 				if school_teacher == grade_subject.subject_teacher:
-					return validated_data
+					return Assess.objects.create(
+						assess_type=validated_data["assess_type"], 
+						grade_subject=validated_data["grade_subject"], 
+						date=validated_data["date"]
+						)
 				elif school_teacher in grade_subject.school_grade.class_teachers():
-					return validated_data
+					return Assess.objects.create(
+						assess_type=validated_data["assess_type"], 
+						grade_subject=validated_data["grade_subject"], 
+						date=validated_data["date"]
+						)
 				elif heads.exists():
 					for head in heads:
 						if head.school == grade_subject.school_grade.school:
-							return validated_data
+							return Assess.objects.create(
+									assess_type=validated_data["assess_type"], 
+									grade_subject=validated_data["grade_subject"], 
+									date=validated_data["date"]
+									)
 			if request.user.is_superuser:
-				return validated_data
+				return Assess.objects.create(
+						assess_type=validated_data["assess_type"], 
+						grade_subject=validated_data["grade_subject"], 
+						date=validated_data["date"]
+						)
 
 			raise ValidationError("You do not have permission to do this action")
 		except:
 			if request.user.is_superuser:
-				return validated_data
+				return Assess.objects.create(
+						assess_type=validated_data["assess_type"], 
+						grade_subject=validated_data["grade_subject"], 
+						date=validated_data["date"]
+						)
 
 			raise ValidationError("You do not have permission to do this action")
 
@@ -160,6 +220,7 @@ class AssessDetailSer(ModelSerializer):
 
 	"""
 
+	
 	assess_type = SerializerMethodField()
 	grade_subject = SerializerMethodField()
 
@@ -203,6 +264,26 @@ class AssessTypeCreateSer(ModelSerializer):
 
 	"""
 
+	school_grade = PrimaryKeyRelatedField(
+		queryset = AssessType.objects.all(),
+		error_messages={
+			"required": "You did not input any school grade",
+			"does_not_exist": "The grade you select for the school does not exit. First create the grade",
+			"incorrect_type": "The ID of the school grade is in incorrect format",
+		})
+
+	name = CharField(
+		required=True,
+		error_messages={
+			"invalid":"Name should be string",
+			"blank": "The field cannot be empty",
+		})
+
+	date = DateField(
+		required=True, 
+		error_messages={
+			"invalid": "Date should be valid"
+			})
 
 	class Meta:
 		model = AssessType
@@ -224,16 +305,28 @@ class AssessTypeCreateSer(ModelSerializer):
 			
 			for school_teacher in school_teachers:
 				if school_teacher in school_grade.class_teachers():
-					return validated_data
+					return AssessType.objects.create(
+						school_grade=validated_data["school_grade"], 
+						name=validated_data["name"], 
+						date=validated_data["date"]
+						)
 
 			if heads.exists():
 				for head in heads:
 					if head.school == school_grade.school:
-						return validated_data
+						return AssessType.objects.create(
+								school_grade=validated_data["school_grade"], 
+								name=validated_data["name"], 
+								date=validated_data["date"]
+								)
 
 			if request.user.is_superuser:
 
-				return validated_data
+				return AssessType.objects.create(
+						school_grade=validated_data["school_grade"], 
+						name=validated_data["name"], 
+						date=validated_data["date"]
+						)
 
 
 			raise ValidationError("You do not have permission to do this action")
@@ -241,7 +334,11 @@ class AssessTypeCreateSer(ModelSerializer):
 			
 			if request.user.is_superuser:
 				
-				return validated_data
+				return AssessType.objects.create(
+						school_grade=validated_data["school_grade"], 
+						name=validated_data["name"], 
+						date=validated_data["date"]
+						)
 
 			raise ValidationError("You do not have permission to do this action")
 
@@ -377,10 +474,15 @@ class ResultCreateSer(ModelSerializer):
 		pupil = validated_data["pupil"]
 		try:
 			results = assess.result_set.filter(pupil=pupil)
+			if results.exists():
+				raise ValidationError("this result already exists")
 
+			same_grade = assess.assess_type.school_grade == pupil.classpupil.grade_class.school_grade
+			if not same_grade:
+				raise ValidationError("The pupil is not entitled to that exam")
 			return validated_data
 		except:
-			raise ValidationError("You can create two results for a single student. Please go for update or delete")
+			raise ValidationError("You cannot create two results for a single student. Please go for update or delete")
 
 	def create(self, validated_data):
 		assess = validated_data['assess']
@@ -393,20 +495,20 @@ class ResultCreateSer(ModelSerializer):
 
 			for school_teacher in school_teachers:
 				if school_teacher == grade_subject.subject_teacher:
-					return validated_data
+					return Result.objects.create(assess=assess, pupil=validated_data["pupil"], marks=validated_data["marks"])
 				elif school_teacher in grade_subject.school_grade.class_teachers():
-					return validated_data
+					return Result.objects.create(assess=assess, pupil=validated_data["pupil"], marks=validated_data["marks"])
 				elif heads.exists():
 					for head in heads:
 						if head.school == grade_subject.school_grade.school:
-							return validated_data
+							return Result.objects.create(assess=assess, pupil=validated_data["pupil"], marks=validated_data["marks"])
 			if request.user.is_superuser:
-				return validated_data
+				return Result.objects.create(assess=assess, pupil=validated_data["pupil"], marks=validated_data["marks"])
 
 			raise ValidationError("You do not have permission to do this action")
 		except:
 			if request.user.is_superuser:
-				return validated_data
+				return Result.objects.create(assess=assess, pupil=validated_data["pupil"], marks=validated_data["marks"])
 
 			raise ValidationError("You do not have permission to do this action")
 

@@ -72,8 +72,8 @@ class AssessTypeDetail(RetrieveUpdateAPIView):
 	permission_classes = [IsAuthenticated, IsClassTeacher_Assess_Type]
 
 	def get_queryset(self, *args, **kwargs):
-		school_grade_id = self.kwargs.get("school_grade_id")
-		return AssessType.objects.assess_types(int(school_grade_id))
+		school_grade_id = self.kwargs.get("school_id")
+		return AssessType.objects.filter(school_grade__school__id= int(school_grade_id))
 		
 class AssessTypePupilList(ListAPIView):
 	serializer_class = AssessTypePupilListSer
@@ -138,8 +138,8 @@ class AssessDetail(RetrieveUpdateAPIView):
 	permission_classes = [IsAuthenticated, IsSubjectTeacher_Assess]
 
 	def get_queryset(self, *args, **kwargs):
-		school_grade_id = self.kwargs.get("school_grade_id")
-		return Assess.objects.assesses(int(school_grade_id))
+		school_id = self.kwargs.get("school_id")
+		return Assess.objects.filter(assess_type__school_grade__school__id= int(school_id))
 
 
 class SubjectAssess(ListAPIView):
